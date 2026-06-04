@@ -3,6 +3,7 @@ package store
 import (
 	"auth/internal/models"
 	"database/sql"
+	"errors"
 	"log"
 
 	_ "github.com/lib/pq"
@@ -23,11 +24,14 @@ func InitDB(db *sql.DB) error {
 	log.Println("Database initialized successfully")
 	return nil
 }
-
+var ErrDuplicateEmail = errors.New("email already exists")
 func CreateUser(db *sql.DB, email, password string) (*models.User, error) {
 	var user models.User
 	err := db.QueryRow(`INSERT INTO users (email, password) VALUES ($1, $2) RETURNING id, email, created_at`, email, password).Scan(&user.ID, &user.Email, &user.CreatedAt)
 	if err != nil {
+		if err.Error() == "pq: duplicate key value violates unique constraint \"users_email_key\"" {
+			return nil, ErrDuplicateEmail
+		}
 		return nil, err
 	}
 	log.Println("User created successfully")
@@ -36,7 +40,7 @@ func CreateUser(db *sql.DB, email, password string) (*models.User, error) {
 
 func GetUserByEmail(db *sql.DB, email string) (*models.User, error) {
 	var user models.User
-	err := db.QueryRow(`SELECT id, email, created_at FROM users WHERE email = $1`, email).Scan(&user.ID, &user.Email, &user.CreatedAt)
+	err := db.QueryRow(`SELECT id, email, password, created_at FROM users WHERE email = $1`, email).Scan(&user.ID, &user.Email, &user.CreatedAt)
 	if err != nil {
 		return nil, err
 	}
