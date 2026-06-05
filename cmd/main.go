@@ -17,6 +17,10 @@ func main() {
 	if dbURL == "" {
 		log.Fatal("DATABASE_URL environment variable is not set.")
 	}
+	jwtSecret := os.Getenv("JWT_SECRET")
+	if jwtSecret == "" {
+		log.Fatal("JWT_SECRET environment variable is not set.")
+	}
 	// Open the pool structures
 	db, err := sql.Open("postgres", dbURL)
 	if err != nil {
