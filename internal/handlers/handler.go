@@ -55,5 +55,48 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(createdUser)
+}
 
+func ( h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
+
+	type LoginRequest struct {
+		Email string `json:"email"`
+		Password string `json:"password"`
+	}
+	var req LoginRequest
+	err := json.NewDecoder(r.Body).Decode(&req)
+	if err != nil {
+		http.Error(w, "Invalid JSON", http.StatusBadRequest)
+		return
+	}
+
+	if req.Email == "" || req.Password == "" {
+		http.Error(w, "Missing Required Fields" , http.StatusUnprocessableEntity)
+		return
+	}
+
+	userStore := store.UserStore{
+		DB: h.DB,
+	}
+
+	user, err := userStore.GetUserByEmail(req.Email)
+	if err != nil {
+		if err == sql.ErrNoRows{
+			http.Error(w, "User not found", http.StatusUnauthorized)
+			return
+		} else {
+			log.Println("Database error:", err)
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+            return
+		}
+	}
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password))
+	if err != nil {
+		http.Error(w, "Invalid email or password", http.StatusUnauthorized)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]string{
+		"message": "Login successful",
+	})
 }
