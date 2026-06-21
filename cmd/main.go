@@ -5,6 +5,7 @@ import (
 	"auth/internal/handlers"
 	"net/http"
 	"log"
+	
 )
 
 func main() {
@@ -19,20 +20,13 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// handler := &handlers.AuthHandler{DB: db}
-	// mux := http.NewServeMux()
-	// mux.HandleFunc("POST /register", handler.Register)
+	handler := &handlers.AuthHandler{DB: db}
+	mux := http.NewServeMux()
+	mux.HandleFunc("POST /register", handler.Register)
 
-	// log.Printf("Server is running on http://localhost:8080")
-	// err = http.ListenAndServe(":8080", mux)
-	// if err != nil {
-	// 	panic(err)
-	// }
-	user, err := userStore.GetUserByEmail("eyob@test.com")
+	log.Printf("Server is running on http://localhost:8080")
+	err = http.ListenAndServe(":8080", mux)
 	if err != nil {
-		log.Println(err)
+		panic(err)
 	}
-	log.Printf("%+v", user)
-
-
 }
