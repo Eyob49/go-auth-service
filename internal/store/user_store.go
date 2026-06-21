@@ -27,6 +27,5 @@ func (s *UserStore) GetUserByEmail(email string) (*models.User, error) {
 	if err != nil {
 		return nil, err
 	}
-	
 	return &user, nil
 }

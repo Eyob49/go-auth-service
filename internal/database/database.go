@@ -4,17 +4,10 @@ import (
 	"database/sql"
 	_ "github.com/lib/pq"
 	"log"
-	"os"
-	"github.com/joho/godotenv"
 )
 
-func ConnectDB() (*sql.DB, error) {
-	err := godotenv.Load()
-	if err != nil {
-		return nil, err
-	}
-	dbURL := os.Getenv("DATABASE_URL")
-
+func ConnectDB(dbURL string) (*sql.DB, error) {
+	
 	db, err := sql.Open("postgres", dbURL)
 	if err != nil {
 		return nil, err

@@ -8,11 +8,14 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"auth/internal/store"
 	"auth/internal/models"
+	"auth/internal/auth"
+	"os"
 )
 
 type AuthHandler struct {
 	DB *sql.DB
 }
+
 
 func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 
@@ -95,8 +98,14 @@ func ( h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid email or password", http.StatusUnauthorized)
 		return
 	}
+    jwtSecretKey := os.Getenv("JWT_SECRET_KEY")
+	token, err := auth.GenerateJWT(user,jwtSecretKey)
+	if err != nil {
+		http.Error(w, "Error building token", http.StatusInternalServerError)
+		return
+	}
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]string{
-		"message": "Login successful",
+		"token": token,
 	})
 }
