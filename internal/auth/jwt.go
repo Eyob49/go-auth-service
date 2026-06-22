@@ -3,6 +3,8 @@ package auth
 import (
 	"auth/internal/models"
 	"time"
+	"errors"
+	"fmt"
 	"github.com/golang-jwt/jwt/v5"
 )
 
@@ -33,4 +35,30 @@ func GenerateJWT(user *models.User, secret string) (string, error){
 		return "", err
 	}
 	return tokenString, nil
+}
+
+func ValidateJWT(tokenStr string, secretKey string) (*UserClaims, error) {
+
+	claims := &UserClaims{}
+
+	token, err := jwt.ParseWithClaims(tokenStr, 
+		                              claims, 
+									  func(token *jwt.Token) (interface{}, error){
+
+										if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+											return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"],)
+										}
+
+
+		                              return []byte(secretKey), nil
+	},
+	)
+	if err != nil {
+		return nil, err
+	}
+	if !token.Valid {
+		return nil, errors.New("invalid token")
+	}
+	return claims, nil
+
 }
