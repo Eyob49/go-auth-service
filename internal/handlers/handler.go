@@ -109,3 +109,8 @@ func ( h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 		"token": token,
 	})
 }
+
+func (h *AuthHandler) Profile(w http.ResponseWriter, r *http.Request) {
+	log.Println("Profile handler reached")
+	w.Write([]byte("Welcome to the protected route"))
+}
