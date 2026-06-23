@@ -98,7 +98,8 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid email or password", http.StatusUnauthorized)
 		return
 	}
-	token, err := auth.GenerateJWT(user, h.SecretKey)
+    jwtSecretKey := os.Getenv("JWT_SECRET_KEY")
+	token, err := auth.GenerateJWT(user,jwtSecretKey)
 	if err != nil {
 		http.Error(w, "Error building token", http.StatusInternalServerError)
 		return
@@ -107,4 +108,9 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]string{
 		"token": token,
 	})
+}
+
+func (h *AuthHandler) Profile(w http.ResponseWriter, r *http.Request) {
+	log.Println("Profile handler reached")
+	w.Write([]byte("Welcome to the protected route"))
 }

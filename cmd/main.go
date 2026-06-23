@@ -35,8 +35,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	handler := &handlers.AuthHandler{DB: db,
-		                            SecretKey: os.Getenv("JWT_SECRET_KEY"),}
+	handler := &handlers.AuthHandler{DB: db}
 	mux := http.NewServeMux()
 	mux.HandleFunc("/register", handler.Register)
 	mux.HandleFunc("/login", handler.Login)
