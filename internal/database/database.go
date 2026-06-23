@@ -7,7 +7,7 @@ import (
 )
 
 func ConnectDB(dbURL string) (*sql.DB, error) {
-	
+
 	db, err := sql.Open("postgres", dbURL)
 	if err != nil {
 		return nil, err
@@ -20,8 +20,7 @@ func ConnectDB(dbURL string) (*sql.DB, error) {
 
 	log.Println("Successfully connected to the database!")
 
-	return db,nil
-
+	return db, nil
 
 }
 

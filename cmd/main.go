@@ -5,12 +5,12 @@ import (
 	"auth/internal/handlers"
 	"auth/internal/middleware"
 	"context"
-	"net/http"
+	"github.com/joho/godotenv"
 	"log"
+	"net/http"
 	"os"
 	"os/signal"
 	"time"
-	"github.com/joho/godotenv"
 )
 
 func main() {
@@ -35,7 +35,8 @@ func main() {
 		log.Fatal(err)
 	}
 
-	handler := &handlers.AuthHandler{DB: db}
+	handler := &handlers.AuthHandler{DB: db,
+		                            SecretKey: os.Getenv("JWT_SECRET_KEY"),}
 	mux := http.NewServeMux()
 	mux.HandleFunc("/register", handler.Register)
 	mux.HandleFunc("/login", handler.Login)

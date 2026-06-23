@@ -2,29 +2,20 @@ package auth
 
 import (
 	"auth/internal/models"
-	"time"
 	"errors"
 	"fmt"
 	"github.com/golang-jwt/jwt/v5"
+	"time"
 )
 
-type UserClaims struct {
-	UserID int64 `json:"user_id"`
-	Email string  `json:"email"`
-	jwt.RegisteredClaims
-}
-
-
-
-func GenerateJWT(user *models.User, secret string) (string, error){
-
+func GenerateJWT(user *models.User, secret string) (string, error) {
 	claims := UserClaims{
 		UserID: user.ID,
-		Email: user.Email,
+		Email:  user.Email,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 2)),
-			IssuedAt: jwt.NewNumericDate(time.Now()),
-			Issuer: "go-auth-service",
+			IssuedAt:  jwt.NewNumericDate(time.Now()),
+			Issuer:    "go-auth-service",
 		},
 	}
 
@@ -41,17 +32,16 @@ func ValidateJWT(tokenStr string, secretKey string) (*UserClaims, error) {
 
 	claims := &UserClaims{}
 
-	token, err := jwt.ParseWithClaims(tokenStr, 
-		                              claims, 
-									  func(token *jwt.Token) (interface{}, error){
+	token, err := jwt.ParseWithClaims(tokenStr,
+		claims,
+		func(token *jwt.Token) (interface{}, error) {
 
-										if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-											return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"],)
-										}
+			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+				return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
+			}
 
-
-		                              return []byte(secretKey), nil
-	},
+			return []byte(secretKey), nil
+		},
 	)
 	if err != nil {
 		return nil, err

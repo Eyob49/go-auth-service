@@ -1,21 +1,21 @@
 package handlers
 
 import (
+	"auth/internal/auth"
+	"auth/internal/models"
+	"auth/internal/store"
 	"database/sql"
 	"encoding/json"
-	"net/http"
-	"log"
 	"golang.org/x/crypto/bcrypt"
-	"auth/internal/store"
-	"auth/internal/models"
-	"auth/internal/auth"
+	"log"
+	"net/http"
 	"os"
 )
 
 type AuthHandler struct {
 	DB *sql.DB
+	SecretKey string
 }
-
 
 func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 
@@ -36,18 +36,18 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost,)
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
 	if err != nil {
 		log.Println("Error hashing password:", err)
 		return
 	}
 
-	user := models.User {
-		Email: req.Email,
-		Password: string(hashedPassword), 
+	user := models.User{
+		Email:    req.Email,
+		Password: string(hashedPassword),
 	}
 
-    userStore := store.UserStore{
+	userStore := store.UserStore{
 		DB: h.DB,
 	}
 	createdUser, err := userStore.CreateUser(user)
@@ -60,10 +60,10 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(createdUser)
 }
 
-func ( h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
+func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 
 	type LoginRequest struct {
-		Email string `json:"email"`
+		Email    string `json:"email"`
 		Password string `json:"password"`
 	}
 	var req LoginRequest
@@ -74,7 +74,7 @@ func ( h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if req.Email == "" || req.Password == "" {
-		http.Error(w, "Missing Required Fields" , http.StatusUnprocessableEntity)
+		http.Error(w, "Missing Required Fields", http.StatusUnprocessableEntity)
 		return
 	}
 
@@ -84,13 +84,13 @@ func ( h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 
 	user, err := userStore.GetUserByEmail(req.Email)
 	if err != nil {
-		if err == sql.ErrNoRows{
+		if err == sql.ErrNoRows {
 			http.Error(w, "User not found", http.StatusUnauthorized)
 			return
 		} else {
 			log.Println("Database error:", err)
 			http.Error(w, "Internal server error", http.StatusInternalServerError)
-            return
+			return
 		}
 	}
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password))
@@ -98,8 +98,7 @@ func ( h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid email or password", http.StatusUnauthorized)
 		return
 	}
-    jwtSecretKey := os.Getenv("JWT_SECRET_KEY")
-	token, err := auth.GenerateJWT(user,jwtSecretKey)
+	token, err := auth.GenerateJWT(user, h.SecretKey)
 	if err != nil {
 		http.Error(w, "Error building token", http.StatusInternalServerError)
 		return
@@ -108,9 +107,4 @@ func ( h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]string{
 		"token": token,
 	})
-}
-
-func (h *AuthHandler) Profile(w http.ResponseWriter, r *http.Request) {
-	log.Println("Profile handler reached")
-	w.Write([]byte("Welcome to the protected route"))
 }

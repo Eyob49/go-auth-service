@@ -1,9 +1,9 @@
 package store
 
 import (
+	"auth/internal/models"
 	"database/sql"
 	"log"
-	"auth/internal/models"
 )
 
 type UserStore struct {
@@ -14,7 +14,7 @@ func (s *UserStore) CreateUser(user models.User) (*models.User, error) {
 	err := s.DB.QueryRow(`INSERT INTO users (email, password) VALUES($1, $2)
 	                   RETURNING id, email, created_at`, user.Email, user.Password).Scan(&user.ID, &user.Email, &user.CreatedAt)
 	if err != nil {
-		return nil,err
+		return nil, err
 	}
 	log.Println("User created successfully")
 	return &user, nil
