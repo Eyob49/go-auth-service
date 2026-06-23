@@ -1,7 +1,7 @@
 package store
 
 import (
-	"auth/internal/models"
+	"github.com/Eyob49/go-auth-service/internal/models"
 	"database/sql"
 	"log"
 )

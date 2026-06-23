@@ -1,9 +1,9 @@
 ﻿package main
 
 import (
-	"auth/internal/database"
-	"auth/internal/handlers"
-	"auth/internal/middleware"
+	"github.com/Eyob49/go-auth-service/internal/database"
+	"github.com/Eyob49/go-auth-service/internal/handlers"
+	"github.com/Eyob49/go-auth-service/internal/middleware"
 	"context"
 	"github.com/joho/godotenv"
 	"log"
@@ -35,7 +35,10 @@ func main() {
 		log.Fatal(err)
 	}
 
-	handler := &handlers.AuthHandler{DB: db}
+	handler := &handlers.AuthHandler{
+		DB:        db,
+		SecretKey: os.Getenv("JWT_SECRET_KEY"),
+	}
 	mux := http.NewServeMux()
 	mux.HandleFunc("/register", handler.Register)
 	mux.HandleFunc("/login", handler.Login)

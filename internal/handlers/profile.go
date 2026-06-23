@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"auth/internal/auth"
+	"github.com/Eyob49/go-auth-service/internal/auth"
 	"fmt"
 	"log"
 	"net/http"

@@ -1,7 +1,7 @@
 package auth
 
 import (
-	"auth/internal/models"
+	"github.com/Eyob49/go-auth-service/internal/models"
 	"errors"
 	"fmt"
 	"github.com/golang-jwt/jwt/v5"

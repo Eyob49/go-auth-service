@@ -1,9 +1,9 @@
 package handlers
 
 import (
-	"auth/internal/auth"
-	"auth/internal/models"
-	"auth/internal/store"
+	"github.com/Eyob49/go-auth-service/internal/auth"
+	"github.com/Eyob49/go-auth-service/internal/models"
+	"github.com/Eyob49/go-auth-service/internal/store"
 	"database/sql"
 	"encoding/json"
 	"golang.org/x/crypto/bcrypt"

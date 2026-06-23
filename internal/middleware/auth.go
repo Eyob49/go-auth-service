@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"auth/internal/auth"
+	"github.com/Eyob49/go-auth-service/internal/auth"
 	"context"
 	"net/http"
 	"os"
