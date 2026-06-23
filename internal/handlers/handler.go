@@ -14,6 +14,7 @@ import (
 
 type AuthHandler struct {
 	DB *sql.DB
+	SecretKey string
 }
 
 
@@ -98,8 +99,7 @@ func ( h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid email or password", http.StatusUnauthorized)
 		return
 	}
-    jwtSecretKey := os.Getenv("JWT_SECRET_KEY")
-	token, err := auth.GenerateJWT(user,jwtSecretKey)
+	token, err := auth.GenerateJWT(user,h.SecretKey)
 	if err != nil {
 		http.Error(w, "Error building token", http.StatusInternalServerError)
 		return
